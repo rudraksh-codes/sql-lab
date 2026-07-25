@@ -1,4 +1,4 @@
--- schema designing normalization ?
+-- independent table first 
 CREATE TABLE IF NOT EXISTS users(
     id BIGSERIAL PRIMARY KEY,
     full_name TEXT NOT NULL, --No point deciding some random limit like 100 or 255.
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users(
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 ); 
 
-
+-- project must always have a valid owner , so can't delete owner (transfer ownership before deleting)
 CREATE TABLE IF NOT EXISTS projects(
     id BIGSERIAL PRIMARY KEY,
     owner_id BIGINT NOT NULL,
@@ -25,6 +25,8 @@ CREATE TABLE IF NOT EXISTS projects(
 -- ownership must be transferred before deletion of a user.
 
 
+-- junction table (should be cascaded on delete)
+-- composite primary key to prevent duplicates
 CREATE TABLE IF NOT EXISTS project_members(
     user_id BIGINT NOT NULL,
     project_id BIGINT NOT NULL,
@@ -60,7 +62,8 @@ CREATE TABLE IF NOT EXISTS project_members(
 );
 
 
-
+-- task can exist unassigned 
+-- jsonb stores flexible metadata in binary (can be searched through...?)
 CREATE TABLE IF NOT EXISTS tasks(
     id BIGSERIAL PRIMARY KEY ,
     project_id BIGINT NOT NULL,
